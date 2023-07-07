@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Automatre.ActionDetails;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace Automatre
 {
@@ -20,15 +21,17 @@ namespace Automatre
         private bool autoRunning = false;
         private Thread autoThread = null;
 
-        private bool nothingSelectedBefore = true;
         private bool recordingMouseCoordinates = true;
+        private bool updating = false;
 
         private bool listenKeyMouseCoords = false;
         private bool listenKeyStart = false;
+        private bool listenKeyPause = false;
         private bool listenKeyAutoPress = false;
 
         private Keys selectedKeyMouseCoords = Keys.F3;
         private Keys selectedKeyStart = Keys.F4;
+        private Keys selectedKeyPause = Keys.F4;
         private Keys selectedKeyAutoPress = Keys.A;
 
         private List<ActionDetails> actions = new List<ActionDetails>();
@@ -49,9 +52,9 @@ namespace Automatre
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            comboBox1.Text = "Key Press";
-            buttonEdit.Enabled = false;
-            buttonRemove.Enabled = false;
+            comboBox1.Text = "Click";
+            comboBox3.Text = "Left Click";
+            label8.Text = "Key: " + selectedKeyAutoPress;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -75,16 +78,12 @@ namespace Automatre
             }
         }
 
+        //only process when on form
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (selectedKeyMouseCoords == keyData)
             {
                 recordingMouseCoordinates = recordingMouseCoordinates ? false : true;
-            }
-
-            if (selectedKeyStart == keyData)
-            {
-                this.Close();
             }
 
             if (listenKeyMouseCoords)
@@ -109,6 +108,14 @@ namespace Automatre
                 buttonStartHotkey.Enabled = true;
                 label11.Text = "Press '" + selectedKeyStart.ToString() + "' to Start/Stop";
                 listenKeyStart = false;
+            }
+
+            if (listenKeyPause)
+            {
+                selectedKeyPause = keyData;
+                buttonPauseHotkey.Enabled = true;
+                label22.Text = "Press '" + selectedKeyPause.ToString() + "' to Pause";
+                listenKeyPause = false;
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
@@ -140,67 +147,86 @@ namespace Automatre
                             break;
                     }
                     action = new ActionDetails(actionType, (int)numericUpDown4.Value, (int)numericUpDown3.Value);
-                    action.order = (int)numericUpDown5.Value;
+                    action.order = (int)orderClick.Value;
                     break;
                 case "Key Press":
                     action = new ActionDetails(selectedKeyAutoPress, (int)numericUpDown2.Value, (int)numericUpDown1.Value);
-                    action.order = (int)numericUpDown6.Value;
+                    action.order = (int)orderKeyPress.Value;
                     break;
                 case "Move Mouse":
                     action = new ActionDetails(ActionType.MOUSE_MOVE, (int)numericUpDown11.Value, (int)numericUpDown10.Value, (int)numericUpDown9.Value, (int)numericUpDown8.Value);
-                    action.order = (int)numericUpDown7.Value;
+                    action.order = (int)orderMouseMove.Value;
                     break;
                 case "Repeat":
                     action = new ActionDetails((int)numericUpDown12.Value, (int)numericUpDown13.Value, (int)numericUpDown16.Value, (int)numericUpDown15.Value);
-                    action.order = (int)numericUpDown14.Value;
+                    action.order = (int)orderRepeat.Value;
                     break;
             }
             return action;
         }
 
-        private void displayAction(ActionDetails details)
+        private void displayPanel(ActionType type)
         {
-            //disable all action group controls
             panel1.Visible = false;
             panel2.Visible = false;
             panel3.Visible = false;
             panel4.Visible = false;
 
+            switch (type)
+            {
+                case ActionType.REPEAT: 
+                    panel4.Visible = true;
+                    break;
+                case ActionType.MOUSE_MOVE: 
+                    panel3.Visible = true;
+                    break;
+                case ActionType.KEY_PRESS: 
+                    panel2.Visible = true;
+                    break;
+                default: 
+                    panel1.Visible = true;
+                    break;
+            }
+
+            int max = listView.Items.Count + 1;
+            orderRepeat.Maximum = max;
+            orderMouseMove.Maximum = max;
+            orderKeyPress.Maximum = max;
+            orderClick.Maximum = max;
+        }
+
+        private void displayAction(ActionDetails details)
+        {
+            displayPanel(details.action);
+
             switch (details.action)
             {
                 case ActionType.KEY_PRESS:
                     comboBox1.Text = "Key Press";
-                    panel2.Visible = true;
                     numericUpDown2.Value = details.durationMS;
                     numericUpDown1.Value = details.repeatAmount;
-                    numericUpDown6.Maximum = listView.Items.Count + 1;
-                    numericUpDown6.Value = details.order;
+                    orderKeyPress.Value = details.order;
                     label8.Text = "Key: " + details.keyPress;
                     selectedKeyAutoPress = details.keyPress;
                     break;
                 case ActionType.MOUSE_MOVE:
                     comboBox1.Text = "Move Mouse";
-                    panel3.Visible = true;
                     numericUpDown11.Value = details.cursorX;
                     numericUpDown10.Value = details.cursorY;
                     numericUpDown9.Value = details.durationMS;
                     numericUpDown8.Value = details.repeatAmount;
-                    numericUpDown7.Maximum = listView.Items.Count + 1;
-                    numericUpDown7.Value = details.order;
+                    orderMouseMove.Value = details.order;
                     break;
                 case ActionType.REPEAT:
                     comboBox1.Text = "Repeat";
-                    panel4.Visible = true;
                     numericUpDown12.Value = details.repeatStart;
                     numericUpDown13.Value = details.repeatEnd;
                     numericUpDown16.Value = details.durationMS;
                     numericUpDown15.Value = details.repeatAmount;
-                    numericUpDown14.Maximum = listView.Items.Count + 1;
-                    numericUpDown14.Value = details.order;
+                    orderRepeat.Value = details.order;
                     break;
                 default: //any click
                     comboBox1.Text = "Click";
-                    panel1.Visible = true;
                     switch (details.action)
                     {
                         case ActionType.CLICK_RIGHT:
@@ -215,48 +241,35 @@ namespace Automatre
                     }
                     numericUpDown4.Value = details.durationMS;
                     numericUpDown3.Value = details.repeatAmount;
-                    numericUpDown5.Maximum = listView.Items.Count + 1;
-                    numericUpDown5.Value = details.order;
+                    orderClick.Value = details.order;
                     break;
             }
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ActionDetails detailsDefault = null;
-            //find default action details
             switch (comboBox1.Text)
             {
-                case "Click":
-                    detailsDefault = new ActionDetails(ActionType.CLICK_LEFT, 1000, 1);
-                    break;
-                case "Key Press":
-                    detailsDefault = new ActionDetails(Keys.A, 1000, 1);
-                    break;
-                case "Move Mouse":
-                    detailsDefault = new ActionDetails(ActionType.MOUSE_MOVE, 555, 555, 1000, 1);
-                    break;
-                case "Repeat":
-                    detailsDefault = new ActionDetails(1, 1, 1000, 1);
-                    break;
+                case "Key Press": displayPanel(ActionType.KEY_PRESS); break;
+                case "Move Mouse": displayPanel(ActionType.MOUSE_MOVE); break;
+                case "Repeat": displayPanel(ActionType.REPEAT); break;
+                default: displayPanel(ActionType.CLICK_RIGHT); break;
             }
-            detailsDefault.order = listView.Items.Count + 1;
-            displayAction(detailsDefault);
         }
 
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (nothingSelectedBefore)
+            if (listView.SelectedItems.Count <= 0)
+            {
+                buttonEdit.Enabled = false;
+                buttonRemove.Enabled = false;
+            } 
+            else
             {
                 buttonEdit.Enabled = true;
                 buttonRemove.Enabled = true;
-                nothingSelectedBefore = false;
-            }
-            if (listView.SelectedItems.Count != 0)
-            {
                 int i = listView.SelectedItems[0].Index;
-                ActionDetails actionDetails = actions[i];
-                displayAction(actionDetails);
+                displayAction(actions[i]);
             }
         }
 
@@ -279,6 +292,13 @@ namespace Automatre
             buttonStartHotkey.Enabled = false;
             listenKeyStart = true;
             label11.Text = "Press Any Key to Change";
+        }
+
+        private void buttonPauseHotkey_Click(object sender, EventArgs e)
+        {
+            buttonPauseHotkey.Enabled = false;
+            listenKeyPause = true;
+            label22.Text = "Press Any Key to Change";
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -340,19 +360,15 @@ namespace Automatre
         private void addButton_Click(object sender, EventArgs e)
         {
             ActionDetails actionDetails = getActionFromDisplay();
-            actions.Insert(actionDetails.order - 1, actionDetails);
 
-            //increment all orders above this one
-            foreach (ListViewItem i in listView.Items)
+            //increment order above all after this order
+            for (int i = actionDetails.order - 1; i < actions.Count; i++)
             {
-                if (Int32.Parse(i.Text) >= actionDetails.order)
-                {
-                    i.Text = $"{Int32.Parse(i.Text) + 1}";
-                }
+                actions[i].order += 1;
+                listView.Items[i].Text = $"{actions[i].order}";
             }
 
-            for (int i = actionDetails.order; i < actions.Count; i++)
-                actions[i].order += 1;
+            actions.Insert(actionDetails.order - 1, actionDetails);
 
             //make visible on ListView
             ListViewItem item = new ListViewItem(actionDetails.order.ToString());
@@ -361,8 +377,12 @@ namespace Automatre
             item.SubItems.Add(actionDetails.repeatAmount.ToString());
             listView.Items.Insert(actionDetails.order - 1, item);
 
-            //update actions
-            comboBox1_SelectedIndexChanged(null, null);
+            //increase display order if order is already the highest
+            if(actionDetails.order == actions.Count)
+            {
+                displayPanel(actionDetails.action);
+                updateOrdersToMatch(actions.Count + 1);
+            } 
         }
 
         private void buttonEdit_Click(object sender, EventArgs e)
@@ -398,8 +418,37 @@ namespace Automatre
             }
         }
 
+        private void updateOrdersToMatch(int val)
+        {
+            if (!updating)
+            {
+                updating = true;
+                orderClick.Value = val;
+                orderRepeat.Value = val;
+                orderMouseMove.Value = val;
+                orderKeyPress.Value = val;
+                updating = false;
+            }
+        }
 
+        private void orderClick_ValueChanged(object sender, EventArgs e)
+        {
+            updateOrdersToMatch((int)orderClick.Value);
+        }
 
+        private void orderRepeat_ValueChanged(object sender, EventArgs e)
+        {
+            updateOrdersToMatch((int)orderRepeat.Value);
+        }
 
+        private void orderMouseMove_ValueChanged(object sender, EventArgs e)
+        {
+            updateOrdersToMatch((int)orderMouseMove.Value);
+        }
+
+        private void orderKeyPress_ValueChanged(object sender, EventArgs e)
+        {
+            updateOrdersToMatch((int)orderKeyPress.Value);
+        }
     }
 }
