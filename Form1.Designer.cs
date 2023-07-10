@@ -32,7 +32,6 @@
             this.labelMouseLocation = new System.Windows.Forms.Label();
             this.timerMouseLoc = new System.Windows.Forms.Timer(this.components);
             this.trackBar1 = new System.Windows.Forms.TrackBar();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.addButton = new System.Windows.Forms.Button();
             this.labelCoordinates = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -139,14 +138,6 @@
             this.trackBar1.Name = "trackBar1";
             this.trackBar1.Size = new System.Drawing.Size(671, 45);
             this.trackBar1.TabIndex = 1;
-            // 
-            // statusStrip1
-            // 
-            this.statusStrip1.Location = new System.Drawing.Point(0, 506);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1077, 22);
-            this.statusStrip1.TabIndex = 2;
-            this.statusStrip1.Text = "statusStrip1";
             // 
             // addButton
             // 
@@ -398,7 +389,7 @@
             this.panel2.Controls.Add(this.label4);
             this.panel2.Location = new System.Drawing.Point(24, 47);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(208, 151);
+            this.panel2.Size = new System.Drawing.Size(208, 133);
             this.panel2.TabIndex = 11;
             this.panel2.Visible = false;
             // 
@@ -533,9 +524,9 @@
             this.panel3.Controls.Add(this.label14);
             this.panel3.Controls.Add(this.numericUpDown9);
             this.panel3.Controls.Add(this.label15);
-            this.panel3.Location = new System.Drawing.Point(27, 47);
+            this.panel3.Location = new System.Drawing.Point(24, 47);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(208, 142);
+            this.panel3.Size = new System.Drawing.Size(246, 151);
             this.panel3.TabIndex = 14;
             this.panel3.Visible = false;
             // 
@@ -682,7 +673,7 @@
             this.panel4.Controls.Add(this.label21);
             this.panel4.Location = new System.Drawing.Point(24, 47);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(228, 135);
+            this.panel4.Size = new System.Drawing.Size(228, 143);
             this.panel4.TabIndex = 18;
             this.panel4.Visible = false;
             // 
@@ -904,8 +895,8 @@
             this.Controls.Add(this.buttonStartHotkey);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.buttonStart);
-            this.Controls.Add(this.listView);
             this.Controls.Add(this.panel2);
+            this.Controls.Add(this.listView);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.comboBox1);
@@ -913,7 +904,6 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.labelCoordinates);
             this.Controls.Add(this.addButton);
-            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.trackBar1);
             this.Controls.Add(this.labelMouseLocation);
             this.Name = "Form1";
@@ -955,7 +945,6 @@
         private System.Windows.Forms.Label labelMouseLocation;
         private System.Windows.Forms.Timer timerMouseLoc;
         private System.Windows.Forms.TrackBar trackBar1;
-        private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.Button addButton;
         private System.Windows.Forms.Label labelCoordinates;
         private System.Windows.Forms.Label label1;

@@ -125,7 +125,9 @@ namespace Automatre
         public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
 
         [DllImport("user32.dll")]
-        public static extern IntPtr PostMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+        public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
+        [DllImport("user32.dll")]
+        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         private ActionDetails getActionFromDisplay()
         {
@@ -187,7 +189,11 @@ namespace Automatre
                     panel1.Visible = true;
                     break;
             }
+            updateMaximums();
+        }
 
+        private void updateMaximums()
+        {
             int max = listView.Items.Count + 1;
             orderRepeat.Maximum = max;
             orderMouseMove.Maximum = max;
@@ -344,6 +350,9 @@ namespace Automatre
                 case ActionType.REPEAT:
                     autoRun(copyActionsList(actions, action.repeatStart, action.repeatEnd));
                     break;
+                case ActionType.KEY_PRESS:
+                    SendKeys.SendWait(action.keyPress.ToString());
+                    break;
             }
         }
 
@@ -377,18 +386,24 @@ namespace Automatre
             item.SubItems.Add(actionDetails.repeatAmount.ToString());
             listView.Items.Insert(actionDetails.order - 1, item);
 
-            //increase display order if order is already the highest
-            if(actionDetails.order == actions.Count)
-            {
-                displayPanel(actionDetails.action);
-                updateOrdersToMatch(actions.Count + 1);
-            } 
+            updateMaximums();
+            updateOrdersToMatch(actionDetails.order + 1);
         }
 
         private void buttonEdit_Click(object sender, EventArgs e)
         {
-            //TODO prevent from selecting multiple unless you want to edit multilpe i guess
-            ActionDetails actionDetails = getActionFromDisplay();
+            if (listView.SelectedItems.Count != 0)
+            {
+                ActionDetails actionDetails = getActionFromDisplay();
+
+                foreach (ListViewItem item in listView.SelectedItems)
+                {
+                    removeItem(item.Index);
+                    displayAction(actionDetails);
+                    addButton_Click(null, null);
+
+                }
+            }
         }
 
         private void buttonRemove_Click(object sender, EventArgs e)
@@ -397,25 +412,25 @@ namespace Automatre
             {
                 foreach (ListViewItem item in listView.SelectedItems)
                 {
-                    //decrement all following order values
-                    int ii = item.Index;
-                    ActionDetails actionDetails = actions[ii];
-                    foreach (ListViewItem i in listView.Items)
-                    {
-                        if (Int32.Parse(i.Text) > actionDetails.order)
-                        {
-                            i.Text = $"{Int32.Parse(i.Text) - 1}";
-                        }
-                    }
-                    
-                    for (int i = actionDetails.order + 1; i < actions.Count; i++)
-                        actions[i].order -= 1;
-
-                    //acutally delete
-                    listView.Items.RemoveAt(ii);
-                    actions.RemoveAt(ii);
+                    removeItem(item.Index);
                 }
             }
+        }
+        
+        private void removeItem(int indexRemove)
+        {
+            //acutally delete
+            listView.Items.RemoveAt(indexRemove);
+            actions.RemoveAt(indexRemove);
+
+            //decrement all following order values
+            for (int i = indexRemove; i < actions.Count; i++)
+            {
+                actions[i].order -= 1;
+                listView.Items[i].Text = $"{actions[i].order}";
+            }
+
+            updateMaximums();
         }
 
         private void updateOrdersToMatch(int val)
