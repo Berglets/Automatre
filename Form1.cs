@@ -305,7 +305,7 @@ namespace Automatre
 
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (listView.SelectedItems.Count <= 0 || autoRunning)
+            if (listView.SelectedItems.Count <= 0)
             {
                 buttonEdit.Enabled = false;
                 buttonRemove.Enabled = false;
@@ -347,22 +347,25 @@ namespace Automatre
             label22.Text = "Press Any Key to Change";
         }
 
-        private static void autoRun(object actionsToPerform)
+        private static void autoRun(object actionsAndForm)
         {
-            List<ActionDetails> actions = (List<ActionDetails>)actionsToPerform;
-            
+            Tuple<List<ActionDetails>, Form1> tuple = (Tuple<List<ActionDetails>, Form1>)actionsAndForm;
+            List<ActionDetails> actions = tuple.Item1;
+            Form1 frm = tuple.Item2;
+
             for(int i = 0; i < actions.Count; i++)
             {
+                frm.makeActive(i);
                 ActionDetails action = actions[i];
                 for (int j = 0; j < action.repeatAmount; j++)
                 {
                     Thread.Sleep(action.durationMS);
-                    performAction(action, actions);
+                    performAction(action, actions, frm);
                 }
             }
         }
 
-        private static void performAction(ActionDetails action, List<ActionDetails> actions)
+        private static void performAction(ActionDetails action, List<ActionDetails> actions, Form1 frm)
         {
             switch(action.action)
             {
@@ -379,7 +382,7 @@ namespace Automatre
                     mouse_event(MOUSEEVENT_RIGHTDOWN | MOUSEEVENT_RIGHTUP, (uint)Cursor.Position.X, (uint)Cursor.Position.Y, 0, 0);
                     break;
                 case ActionType.REPEAT:
-                    autoRun(copyActionsList(actions, action.repeatStart - 1, action.repeatEnd - 1));
+                    autoRun(new Tuple<List<ActionDetails>, Form1>(copyActionsList(actions, action.repeatStart - 1, action.repeatEnd - 1), frm));
                     break;
                 case ActionType.KEY_PRESS:
                     SendKeys.SendWait(action.keyPress.ToString());
@@ -514,7 +517,7 @@ namespace Automatre
 
                 Thread thread = new Thread(autoRun);
                 thread.IsBackground = true;
-                thread.Start(copyActionsList(actions, 0, actions.Count - 1));
+                thread.Start(new Tuple<List<ActionDetails>, Form1>(actions, this));
                 autoThread = thread;
                 autoRunning = true;
             }
@@ -532,6 +535,19 @@ namespace Automatre
                 autoThread.Resume();
                 paused = false;
                 buttonPause.Text = "Pause";
+            }
+        }
+
+        public void makeActive(int index)
+        {
+            if (!InvokeRequired)
+            {
+                listView.SelectedItems.Clear();
+                listView.Items[index].Selected = true;
+            }
+            else
+            {
+                Invoke(new Action<int>(makeActive), index);
             }
         }
     }
