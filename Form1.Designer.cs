@@ -31,7 +31,6 @@
             this.components = new System.ComponentModel.Container();
             this.labelMouseLocation = new System.Windows.Forms.Label();
             this.timerMouseLoc = new System.Windows.Forms.Timer(this.components);
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.addButton = new System.Windows.Forms.Button();
             this.labelCoordinates = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -92,7 +91,6 @@
             this.label22 = new System.Windows.Forms.Label();
             this.buttonPause = new System.Windows.Forms.Button();
             this.actionDetailsBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.orderClick)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
@@ -120,7 +118,7 @@
             // 
             this.labelMouseLocation.AutoEllipsis = true;
             this.labelMouseLocation.Enabled = false;
-            this.labelMouseLocation.Location = new System.Drawing.Point(455, 157);
+            this.labelMouseLocation.Location = new System.Drawing.Point(449, 139);
             this.labelMouseLocation.Name = "labelMouseLocation";
             this.labelMouseLocation.Size = new System.Drawing.Size(86, 21);
             this.labelMouseLocation.TabIndex = 0;
@@ -131,13 +129,6 @@
             this.timerMouseLoc.Enabled = true;
             this.timerMouseLoc.Interval = 10;
             this.timerMouseLoc.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // trackBar1
-            // 
-            this.trackBar1.Location = new System.Drawing.Point(12, 429);
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(671, 45);
-            this.trackBar1.TabIndex = 1;
             // 
             // addButton
             // 
@@ -152,7 +143,7 @@
             // labelCoordinates
             // 
             this.labelCoordinates.AutoSize = true;
-            this.labelCoordinates.Location = new System.Drawing.Point(356, 157);
+            this.labelCoordinates.Location = new System.Drawing.Point(350, 139);
             this.labelCoordinates.Name = "labelCoordinates";
             this.labelCoordinates.Size = new System.Drawing.Size(101, 13);
             this.labelCoordinates.TabIndex = 5;
@@ -161,15 +152,15 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(389, 178);
+            this.label1.Location = new System.Drawing.Point(383, 160);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(100, 13);
             this.label1.TabIndex = 6;
-            this.label1.Text = "Press \'F3\' to Toggle";
+            this.label1.Text = "Press \'F2\' to Toggle";
             // 
             // buttonChangeHotkey
             // 
-            this.buttonChangeHotkey.Location = new System.Drawing.Point(381, 194);
+            this.buttonChangeHotkey.Location = new System.Drawing.Point(375, 176);
             this.buttonChangeHotkey.Name = "buttonChangeHotkey";
             this.buttonChangeHotkey.Size = new System.Drawing.Size(113, 23);
             this.buttonChangeHotkey.TabIndex = 7;
@@ -457,7 +448,7 @@
             this.listView.HideSelection = false;
             this.listView.Location = new System.Drawing.Point(24, 233);
             this.listView.Name = "listView";
-            this.listView.Size = new System.Drawing.Size(555, 152);
+            this.listView.Size = new System.Drawing.Size(555, 166);
             this.listView.TabIndex = 12;
             this.listView.UseCompatibleStateImageBehavior = false;
             this.listView.View = System.Windows.Forms.View.Details;
@@ -861,20 +852,22 @@
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(440, 77);
+            this.label22.Location = new System.Drawing.Point(434, 76);
             this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(116, 13);
+            this.label22.Size = new System.Drawing.Size(145, 13);
             this.label22.TabIndex = 22;
-            this.label22.Text = "Press \'F4\' to Start/Stop";
+            this.label22.Text = "Press \'F3\' to Pause/Unpause";
             // 
             // buttonPause
             // 
+            this.buttonPause.Enabled = false;
             this.buttonPause.Location = new System.Drawing.Point(443, 20);
             this.buttonPause.Name = "buttonPause";
             this.buttonPause.Size = new System.Drawing.Size(111, 54);
             this.buttonPause.TabIndex = 21;
             this.buttonPause.Text = "Pause";
             this.buttonPause.UseVisualStyleBackColor = true;
+            this.buttonPause.Click += new System.EventHandler(this.buttonPause_Click);
             // 
             // actionDetailsBindingSource
             // 
@@ -884,7 +877,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1077, 528);
+            this.ClientSize = new System.Drawing.Size(601, 431);
             this.Controls.Add(this.buttonPauseHotkey);
             this.Controls.Add(this.label22);
             this.Controls.Add(this.buttonPause);
@@ -904,12 +897,10 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.labelCoordinates);
             this.Controls.Add(this.addButton);
-            this.Controls.Add(this.trackBar1);
             this.Controls.Add(this.labelMouseLocation);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.orderClick)).EndInit();
@@ -944,7 +935,6 @@
 
         private System.Windows.Forms.Label labelMouseLocation;
         private System.Windows.Forms.Timer timerMouseLoc;
-        private System.Windows.Forms.TrackBar trackBar1;
         private System.Windows.Forms.Button addButton;
         private System.Windows.Forms.Label labelCoordinates;
         private System.Windows.Forms.Label label1;

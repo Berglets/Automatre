@@ -19,7 +19,10 @@ namespace Automatre
     public partial class Form1 : Form
     {
         private bool autoRunning = false;
+        private bool paused = false;
         private Thread autoThread = null;
+
+        private List<ActionDetails> actions = new List<ActionDetails>();
 
         private bool recordingMouseCoordinates = true;
         private bool updating = false;
@@ -28,13 +31,16 @@ namespace Automatre
         private bool listenKeyStart = false;
         private bool listenKeyPause = false;
         private bool listenKeyAutoPress = false;
-
-        private Keys selectedKeyMouseCoords = Keys.F3;
-        private Keys selectedKeyStart = Keys.F4;
-        private Keys selectedKeyPause = Keys.F4;
+        
         private Keys selectedKeyAutoPress = Keys.A;
 
-        private List<ActionDetails> actions = new List<ActionDetails>();
+        private Keys selectedKeyMouseCoords = Keys.F2;
+        private Keys selectedKeyStart = Keys.F4;
+        private Keys selectedKeyPause = Keys.F3;
+
+        const int HOTKEY_ID_START = 1;
+        const int HOTKEY_ID_PAUSE = 2;
+        const int HOTKEY_ID_MOUSECOORDTOGGLE = 3;
 
         //Mouse actions
         private const int MOUSEEVENT_LEFTDOWN = 0x00000002;
@@ -48,6 +54,9 @@ namespace Automatre
         public Form1()
         {
             InitializeComponent();
+            RegisterHotKey(this.Handle, HOTKEY_ID_START, 0, (int) selectedKeyStart);
+            RegisterHotKey(this.Handle, HOTKEY_ID_PAUSE, 0, (int) selectedKeyPause);
+            RegisterHotKey(this.Handle, HOTKEY_ID_MOUSECOORDTOGGLE, 0, (int) selectedKeyMouseCoords);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -55,6 +64,10 @@ namespace Automatre
             comboBox1.Text = "Click";
             comboBox3.Text = "Left Click";
             label8.Text = "Key: " + selectedKeyAutoPress;
+
+            label11.Text = "Press " + selectedKeyStart + " to Start/Stop";
+            label22.Text = "Press " + selectedKeyPause + " to Pause/Unpause";
+            label1.Text = "Press " + selectedKeyMouseCoords + " to Toggle";
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -67,28 +80,26 @@ namespace Automatre
                 numericUpDown11.Value = x;
                 numericUpDown10.Value = y;
             }
-            if(autoRunning)
+            if(autoRunning && !autoThread.IsAlive)
             {
-                if(!autoThread.IsAlive)
-                {
-                    autoRunning = false;
-                    autoThread = null;
-                    buttonStart.Enabled = true;
-                }
+                autoRunning = false;
+                autoThread = null;
+
+                buttonStart.Text = "Start";
+                buttonPause.Enabled = false;
+                addButton.Enabled = true;
             }
         }
 
         //only process when on form
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (selectedKeyMouseCoords == keyData)
-            {
-                recordingMouseCoordinates = recordingMouseCoordinates ? false : true;
-            }
-
             if (listenKeyMouseCoords)
             {
+                UnregisterHotKey(this.Handle, HOTKEY_ID_MOUSECOORDTOGGLE);
                 selectedKeyMouseCoords = keyData;
+                RegisterHotKey(this.Handle, HOTKEY_ID_MOUSECOORDTOGGLE, 0, (int)selectedKeyMouseCoords);
+
                 buttonChangeHotkey.Enabled = true;
                 label1.Text = "Press '" + selectedKeyMouseCoords.ToString() + "' to Toggle";
                 listenKeyMouseCoords = false;
@@ -104,7 +115,10 @@ namespace Automatre
 
             if (listenKeyStart)
             {
+                UnregisterHotKey(this.Handle, HOTKEY_ID_START);
                 selectedKeyStart = keyData;
+                RegisterHotKey(this.Handle, HOTKEY_ID_START, 0, (int)selectedKeyStart);
+
                 buttonStartHotkey.Enabled = true;
                 label11.Text = "Press '" + selectedKeyStart.ToString() + "' to Start/Stop";
                 listenKeyStart = false;
@@ -112,7 +126,10 @@ namespace Automatre
 
             if (listenKeyPause)
             {
+                UnregisterHotKey(this.Handle, HOTKEY_ID_PAUSE);
                 selectedKeyPause = keyData;
+                RegisterHotKey(this.Handle, HOTKEY_ID_START, 0, (int)selectedKeyPause);
+
                 buttonPauseHotkey.Enabled = true;
                 label22.Text = "Press '" + selectedKeyPause.ToString() + "' to Pause";
                 listenKeyPause = false;
@@ -128,6 +145,29 @@ namespace Automatre
         public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
         [DllImport("user32.dll")]
         public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+        //handle key presses outside of form
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == 0x0312 && m.WParam.ToInt32() == HOTKEY_ID_START)
+            {
+                buttonStart_Click(null, null);
+            }
+            if (m.Msg == 0x0312 && m.WParam.ToInt32() == HOTKEY_ID_PAUSE)
+            {
+                if (buttonPause.Enabled == true)
+                {
+                    buttonPause_Click(null, null);
+                }
+            }
+            if (m.Msg == 0x0312 && m.WParam.ToInt32() == HOTKEY_ID_MOUSECOORDTOGGLE)
+            {
+                recordingMouseCoordinates = recordingMouseCoordinates ? false : true;
+            }
+
+
+            base.WndProc(ref m);
+        }
 
         private ActionDetails getActionFromDisplay()
         {
@@ -265,7 +305,7 @@ namespace Automatre
 
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (listView.SelectedItems.Count <= 0)
+            if (listView.SelectedItems.Count <= 0 || autoRunning)
             {
                 buttonEdit.Enabled = false;
                 buttonRemove.Enabled = false;
@@ -307,23 +347,14 @@ namespace Automatre
             label22.Text = "Press Any Key to Change";
         }
 
-        private void buttonStart_Click(object sender, EventArgs e)
-        {
-            buttonStart.Enabled = false;
-            Thread thread = new Thread(autoRun);
-            thread.IsBackground = true;
-            thread.Start(copyActionsList(actions, 0, actions.Count - 1));
-            autoThread = thread;
-            autoRunning = true;
-        }
-
         private static void autoRun(object actionsToPerform)
         {
             List<ActionDetails> actions = (List<ActionDetails>)actionsToPerform;
-
-            foreach(ActionDetails action in actions)
+            
+            for(int i = 0; i < actions.Count; i++)
             {
-                for(int i = 0; i < action.repeatAmount; i++)
+                ActionDetails action = actions[i];
+                for (int j = 0; j < action.repeatAmount; j++)
                 {
                     Thread.Sleep(action.durationMS);
                     performAction(action, actions);
@@ -348,7 +379,7 @@ namespace Automatre
                     mouse_event(MOUSEEVENT_RIGHTDOWN | MOUSEEVENT_RIGHTUP, (uint)Cursor.Position.X, (uint)Cursor.Position.Y, 0, 0);
                     break;
                 case ActionType.REPEAT:
-                    autoRun(copyActionsList(actions, action.repeatStart, action.repeatEnd));
+                    autoRun(copyActionsList(actions, action.repeatStart - 1, action.repeatEnd - 1));
                     break;
                 case ActionType.KEY_PRESS:
                     SendKeys.SendWait(action.keyPress.ToString());
@@ -464,6 +495,44 @@ namespace Automatre
         private void orderKeyPress_ValueChanged(object sender, EventArgs e)
         {
             updateOrdersToMatch((int)orderKeyPress.Value);
+        }
+
+        private void buttonStart_Click(object sender, EventArgs e)
+        {
+            if (autoRunning)
+            {
+                autoThread.Abort();
+            }
+            else
+            {
+                buttonStart.Text = "Stop";
+                listView.SelectedItems.Clear();
+                addButton.Enabled = false;
+                buttonEdit.Enabled = false;
+                buttonRemove.Enabled = false;
+                buttonPause.Enabled = true;
+
+                Thread thread = new Thread(autoRun);
+                thread.IsBackground = true;
+                thread.Start(copyActionsList(actions, 0, actions.Count - 1));
+                autoThread = thread;
+                autoRunning = true;
+            }
+        }
+
+        private void buttonPause_Click(object sender, EventArgs e)
+        {
+            if(autoRunning && !paused)
+            {
+                autoThread.Suspend();
+                paused = true;
+                buttonPause.Text = "Unpause";
+            } else
+            {
+                autoThread.Resume();
+                paused = false;
+                buttonPause.Text = "Pause";
+            }
         }
     }
 }
