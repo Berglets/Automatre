@@ -50,7 +50,6 @@ namespace Automatre
         private const int MOUSEEVENT_RIGHTDOWN = 0x00000008;
         private const int MOUSEEVENT_RIGHTUP = 0x00000010;
 
-
         public Form1()
         {
             InitializeComponent();
@@ -164,7 +163,6 @@ namespace Automatre
             {
                 recordingMouseCoordinates = recordingMouseCoordinates ? false : true;
             }
-
 
             base.WndProc(ref m);
         }
@@ -549,6 +547,11 @@ namespace Automatre
             {
                 Invoke(new Action<int>(makeActive), index);
             }
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            listView.Size = new Size((int)(this.Width - 65), (int)(this.Height - 305));
         }
     }
 }

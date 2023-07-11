@@ -116,6 +116,7 @@
             // 
             // labelMouseLocation
             // 
+            this.labelMouseLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.labelMouseLocation.AutoEllipsis = true;
             this.labelMouseLocation.Enabled = false;
             this.labelMouseLocation.Location = new System.Drawing.Point(449, 139);
@@ -142,6 +143,7 @@
             // 
             // labelCoordinates
             // 
+            this.labelCoordinates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.labelCoordinates.AutoSize = true;
             this.labelCoordinates.Location = new System.Drawing.Point(350, 139);
             this.labelCoordinates.Name = "labelCoordinates";
@@ -151,6 +153,7 @@
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(383, 160);
             this.label1.Name = "label1";
@@ -160,6 +163,7 @@
             // 
             // buttonChangeHotkey
             // 
+            this.buttonChangeHotkey.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonChangeHotkey.Location = new System.Drawing.Point(375, 176);
             this.buttonChangeHotkey.Name = "buttonChangeHotkey";
             this.buttonChangeHotkey.Size = new System.Drawing.Size(113, 23);
@@ -476,6 +480,7 @@
             // 
             // buttonStart
             // 
+            this.buttonStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonStart.Location = new System.Drawing.Point(314, 20);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(111, 54);
@@ -486,6 +491,7 @@
             // 
             // buttonStartHotkey
             // 
+            this.buttonStartHotkey.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonStartHotkey.Location = new System.Drawing.Point(312, 93);
             this.buttonStartHotkey.Name = "buttonStartHotkey";
             this.buttonStartHotkey.Size = new System.Drawing.Size(113, 23);
@@ -496,6 +502,7 @@
             // 
             // label11
             // 
+            this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label11.AutoSize = true;
             this.label11.Location = new System.Drawing.Point(311, 77);
             this.label11.Name = "label11";
@@ -841,6 +848,7 @@
             // 
             // buttonPauseHotkey
             // 
+            this.buttonPauseHotkey.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonPauseHotkey.Location = new System.Drawing.Point(441, 93);
             this.buttonPauseHotkey.Name = "buttonPauseHotkey";
             this.buttonPauseHotkey.Size = new System.Drawing.Size(113, 23);
@@ -851,6 +859,7 @@
             // 
             // label22
             // 
+            this.label22.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label22.AutoSize = true;
             this.label22.Location = new System.Drawing.Point(434, 76);
             this.label22.Name = "label22";
@@ -860,6 +869,7 @@
             // 
             // buttonPause
             // 
+            this.buttonPause.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonPause.Enabled = false;
             this.buttonPause.Location = new System.Drawing.Point(443, 20);
             this.buttonPause.Name = "buttonPause";
@@ -899,8 +909,9 @@
             this.Controls.Add(this.addButton);
             this.Controls.Add(this.labelMouseLocation);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Automatre Automation Tool";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.Resize += new System.EventHandler(this.Form1_Resize);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.orderClick)).EndInit();
